@@ -1,0 +1,9 @@
+# App and data
+streamlit>=1.45
+pandas>=2.2
+pyarrow>=16
+plotly>=5.24
+
+# Development
+pytest>=8
+ruff>=0.6

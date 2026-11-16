@@ -1,0 +1,16 @@
+# Raw Inside Airbnb downloads are large: keep them out of Git.
+# (data/processed/ IS committed so the deployed app has data to read.)
+data/raw/
+
+# Secrets: never commit API keys
+.env
+.streamlit/secrets.toml
+
+# Python clutter
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
