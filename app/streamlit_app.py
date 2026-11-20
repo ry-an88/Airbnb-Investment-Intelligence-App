@@ -115,7 +115,9 @@ with tab_market:
     map_df = active.dropna(subset=["latitude", "longitude"]).sample(min(len(active), 5000), random_state=1)
     st.plotly_chart(
         px.scatter_map(map_df, lat="latitude", lon="longitude", color="room_type",
-                       hover_name="name", hover_data={"price": True}, zoom=9, height=500,
+                       hover_name="name", hover_data={"price": True}, height=500,
+                       center={"lat": map_df["latitude"].mean(), "lon": map_df["longitude"].mean()},
+                       zoom=12 if chosen_areas else 9,
                        title="Where listings are (sample of up to 5,000; locations are approximate)"),
         width="stretch",
     )
