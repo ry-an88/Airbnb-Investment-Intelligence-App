@@ -18,7 +18,7 @@ A Streamlit app that helps a property investor decide **where**, **what** and **
 - [Run it locally](#run-it-locally)
 - [Project structure](#project-structure)
 - [Testing and CI](#testing-and-ci)
-- [Data sources](#data-sources)
+- [Datasets](#datasets)
 - [Roadmap](#roadmap)
 - [Documentation](#documentation)
 - [Team](#team)
@@ -154,7 +154,7 @@ scripts/build_processed.py  builds data/processed/<city>/ from raw files
 tests/                      pytest unit tests
 docs/                       design decisions, plan, screenshots
 slides/                     presentation slides
-data/raw/                   raw downloads (ignored by Git: too large)
+data/datasets/, data/raw/   raw downloads (ignored by Git: too large)
 data/processed/             cleaned data the app reads (committed)
 ```
 
@@ -170,10 +170,63 @@ GitHub Actions (`.github/workflows/ci.yml`) runs both checks on every push.
 
 ---
 
-## Data sources
+## Datasets
+
+All data comes from [Inside Airbnb](https://insideairbnb.com/get-the-data/) (London snapshot of **17 September 2026**, licensed CC BY 4.0). The raw files are too large for GitHub, so they are kept locally in `data/datasets/` and ignored by Git. Full details, every column with its type and missing-value rate, and longer samples are in **[docs/DATASETS.md](docs/DATASETS.md)**.
+
+| File | Size | Rows | Columns | One row is… | Used for |
+|---|---|---|---|---|---|
+| `listings.csv.gz` | 48 MB | 91,954 | 90 | one listing | Core analysis |
+| `calendar.csv.gz` | 82 MB | 33,563,890 | 5 | one listing on one day, next 365 days | Secondary demand signal |
+| `reviews.csv.gz` | 287 MB | 2,323,969 | 6 | one guest review (2009–2026) | AI review analysis (planned) |
+| `neighbourhoods.geojson` | 1 MB | 33 boroughs | – | one borough outline | Borough map (planned) |
+
+`.csv.gz` is a CSV compressed with gzip; pandas reads it directly with `pd.read_csv(path)`.
+
+### Listings: first 10 rows (13 of 90 columns)
+|      id | neighbourhood_cleansed   | room_type       | property_type               |   accommodates |   bedrooms | price   |   minimum_nights |   availability_365 |   number_of_reviews |   number_of_reviews_ltm |   review_scores_rating | last_review   |
+|--------:|:-------------------------|:----------------|:----------------------------|---------------:|-----------:|:--------|-----------------:|-------------------:|--------------------:|------------------------:|-----------------------:|:--------------|
+|   11551 | Lambeth                  | Entire home/apt | Entire rental unit          |              5 |          1 | $267.50 |                1 |                349 |                 197 |                       7 |                   4.55 | 2026-09-04    |
+|   13913 | Islington                | Private room    | Private room in rental unit |              1 |          1 | $127.00 |                1 |                350 |                  57 |                       2 |                   4.86 | 2026-03-31    |
+|   15400 | Kensington and Chelsea   | Entire home/apt | Entire rental unit          |              2 |          1 | $137.50 |                4 |                159 |                  98 |                       1 |                   4.81 | 2026-03-30    |
+|   24328 | Wandsworth               | Entire home/apt | Entire townhouse            |              2 |          1 | $228.00 |                5 |                272 |                  97 |                       2 |                   4.9  | 2026-07-02    |
+|   25081 | Haringey                 | Entire home/apt | Entire rental unit          |              4 |          2 | nan     |                3 |                  1 |                   0 |                       0 |                 nan    | nan           |
+|   36299 | Richmond upon Thames     | Entire home/apt | Entire townhouse            |              5 |          3 | $290.00 |                3 |                350 |                 117 |                       2 |                   4.8  | 2026-08-18    |
+|   17402 | Westminster              | Entire home/apt | Entire rental unit          |              6 |          3 | $517.50 |                3 |                175 |                  59 |                       3 |                   4.78 | 2026-09-07    |
+| 2871410 | Islington                | Entire home/apt | Entire rental unit          |              2 |          2 | nan     |                6 |                  0 |                   3 |                       0 |                   5    | 2018-08-05    |
+| 2878520 | Richmond upon Thames     | Entire home/apt | Entire home                 |              5 |          3 | nan     |                4 |                  0 |                   5 |                       0 |                   4.8  | 2017-07-30    |
+| 2880265 | Richmond upon Thames     | Private room    | Private room in home        |              2 |          1 | $59.00  |                1 |                307 |                 160 |                      18 |                   4.88 | 2026-09-14    |
+
+Notes: price is stored as text with a `$` sign, but the amounts are in **pounds**. Review scores are out of 5. `number_of_reviews_ltm` = reviews in the last 12 months.
+
+### Calendar: first 10 rows
+|   listing_id | date       | available   |   minimum_nights |   maximum_nights |
+|-------------:|:-----------|:------------|-----------------:|-----------------:|
+|        11551 | 2026-09-19 | f           |                1 |             1125 |
+|        17402 | 2026-09-18 | f           |                3 |             1125 |
+|        17402 | 2026-09-19 | f           |                3 |             1125 |
+|        17402 | 2026-09-20 | f           |                3 |             1125 |
+|        17402 | 2026-09-21 | f           |                3 |             1125 |
+|        17402 | 2026-09-22 | f           |                3 |             1125 |
+|        17402 | 2026-09-23 | t           |                3 |             1125 |
+|        17402 | 2026-09-24 | t           |                3 |             1125 |
+|        17402 | 2026-09-25 | t           |                3 |             1125 |
+|        17402 | 2026-09-26 | t           |                3 |             1125 |
+
+`available = f` means the night is **booked or blocked by the host**. The data can't tell which, so we don't count it as a booking.
+
+### Reviews: first 5 rows (comments shortened, reviewer details hidden)
+|   listing_id |    id | date       | comments                                                               |
+|-------------:|------:|:-----------|:-----------------------------------------------------------------------|
+|        11551 | 30672 | 2010-03-21 | The flat was bright, comfortable and clean and Adriano was pleasant a… |
+|        11551 | 32236 | 2010-03-29 | We stayed with Adriano and Valerio for a week when first moving to Lo… |
+|        11551 | 41044 | 2010-05-09 | Adriano was a fantastic host. We felt very at home while staying ther… |
+|        11551 | 48926 | 2010-06-01 | We had a most wonderful stay with Adriano and Valerio.  They are both… |
+|        11551 | 58352 | 2010-06-28 | I'm not sure which of us misunderstood the situation, but I was not…   |
+
+### Other public data
 | Source | Licence | Used for |
 |---|---|---|
-| [Inside Airbnb](https://insideairbnb.com/get-the-data/): London, 17 Sep 2026 (detailed listings, calendar, reviews, neighbourhoods) | CC BY 4.0 | Main dataset |
 | *Planned:* UK House Price Index / HM Land Registry Price Paid Data | Open Government Licence | Purchase prices, yield |
 | *Planned:* ONS Price Index of Private Rents | Open Government Licence | Long-term rent comparison |
 
@@ -194,6 +247,7 @@ GitHub Actions (`.github/workflows/ci.yml`) runs both checks on every push.
 ---
 
 ## Documentation
+- [docs/DATASETS.md](docs/DATASETS.md): every dataset described, all columns with types and missing values, sample rows, summary statistics
 - [docs/DESIGN_DECISIONS.md](docs/DESIGN_DECISIONS.md): every choice, its alternatives and justification, the full assumptions list, limitations, data dictionary and decision log
 - [docs/plan_to_friday.md](docs/plan_to_friday.md): project plan for the 20 Nov checkpoint
 - [slides/airbnb_checkpoint_20nov.pptx](slides/airbnb_checkpoint_20nov.pptx): checkpoint presentation

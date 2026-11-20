@@ -1,6 +1,7 @@
 # Raw Inside Airbnb downloads are large: keep them out of Git.
 # (data/processed/ IS committed so the deployed app has data to read.)
 data/raw/
+data/datasets/
 
 # Secrets: never commit API keys
 .env
