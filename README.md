@@ -152,6 +152,7 @@ src/airbnb/scoring.py       investment score, personas, explanations
 scripts/download_data.py    downloads one city's raw files
 scripts/build_processed.py  builds data/processed/<city>/ from raw files
 tests/                      pytest unit tests
+notebooks/01_eda_guided.ipynb  guided exploratory data analysis workbook
 docs/                       design decisions, plan, screenshots
 slides/                     presentation slides
 data/datasets/, data/raw/   raw downloads (ignored by Git: too large)
@@ -247,6 +248,7 @@ Notes: price is stored as text with a `$` sign, but the amounts are in **pounds*
 ---
 
 ## Documentation
+- [notebooks/01_eda_guided.ipynb](notebooks/01_eda_guided.ipynb): guided EDA workbook (instructions and hints, you write the code)
 - [docs/DATASETS.md](docs/DATASETS.md): every dataset described, all columns with types and missing values, sample rows, summary statistics
 - [docs/DESIGN_DECISIONS.md](docs/DESIGN_DECISIONS.md): every choice, its alternatives and justification, the full assumptions list, limitations, data dictionary and decision log
 - [docs/plan_to_friday.md](docs/plan_to_friday.md): project plan for the 20 Nov checkpoint
