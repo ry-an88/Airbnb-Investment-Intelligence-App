@@ -1,0 +1,8 @@
+check,count,share_of_listings
+Listings in snapshot,91954,1.0
+Missing or unreadable price,32049,0.349
+Price outside £10–£2000 (excluded from averages),270,0.003
+No reviews ever,20694,0.225
+Missing overall review score,20694,0.225
+Missing bedrooms,45,0.0
+Not active (no review in last 12 months),44905,0.488
